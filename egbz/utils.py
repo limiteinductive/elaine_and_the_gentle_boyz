@@ -100,4 +100,4 @@ def from_csv(filepath_or_buffer: pd._typing.FilePathOrBuffer,
     """
     # Let's open the CSV as a DataFrame with time_col as a DatetimeIndex
     df = pd.read_csv(filepath_or_buffer=filepath_or_buffer, **kwargs)
-    return from_df(df, cat_col=cat_cols, time_col=time_col, value_cols=value_cols)
+    return from_df(df, cat_cols=cat_cols, time_col=time_col, value_cols=value_cols)
