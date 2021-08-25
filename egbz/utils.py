@@ -1,11 +1,12 @@
 import pandas as pd
+import itertools
 from darts import TimeSeries
 from typing import Tuple, Optional, Callable, Any, List, Union
 
 
 def from_df(df: pd.DataFrame,
-            cat_col: Optional[str] = None,
             time_col: Optional[str] = None,
+            cat_cols: Optional[Union[List[str], str]] = None,
             value_cols: Optional[Union[List[str], str]] = None
             ) -> 'Timeseries':
     """
@@ -17,11 +18,11 @@ def from_df(df: pd.DataFrame,
     ----------
     filepath_or_buffer
         The path to the CSV file, or the file object.
-    cat_col 
-        For each value in the cat_col columns, it will add a new Timeserie.
     time_col
         The time column name. If set, the column will be cast to a pandas DatetimeIndex.
         If not set, the pandas Int64Index will be used.
+    cat_cols
+        For each value in the cat_cols columns, it will add a new Timeserie.
     value_col
         A string or a list of strings representing the features to be extracted from 
         the csv. If None, all the columns will be extracted.
@@ -47,17 +48,28 @@ def from_df(df: pd.DataFrame,
     # Let's create the new dataframe creating a column for each value of cat_col
     if isinstance(value_cols, str):
         value_cols = [value_cols]
-    d = {f'{col}_{cat}': df[df[cat_col]==cat][col]
-            for cat in df[cat_col].unique()
-            for col in value_cols
-    }
-    new_df = pd.DataFrame(d)
+    if isinstance(cat_cols, str):
+        cat_cols = [cat_cols]
+    
+    for col in cat_cols:
+        df[col] = df[col].astype('str')
 
-    return TimeSeries.from_dataframe(df=new_df)
+    categories = itertools.product(*[df[cat].unique() for cat in cat_cols])
+    d = {f'{col}_{"_".join([x for x in cat])}': 
+	     df.query(' & '.join([f'{cat_name}=="{cat_value}"'
+		                    for cat_name, cat_value in zip(cat_cols, [x for x in cat])
+		                    ])
+	     )[col]
+	    for cat in categories
+	    for col in value_cols
+    }
+    df = pd.DataFrame(d)
+
+    return TimeSeries.from_dataframe(df=df)
 
 def from_csv(filepath_or_buffer: pd._typing.FilePathOrBuffer,
-                            cat_col: Optional[str] = None,
                             time_col: Optional[str] = None,
+                            cat_cols: Optional[Union[List[str], str]] = None,
                             value_cols: Optional[Union[List[str], str]] = None,
                             **kwargs) -> 'Timeseries':
     """
@@ -69,8 +81,8 @@ def from_csv(filepath_or_buffer: pd._typing.FilePathOrBuffer,
     ----------
     filepath_or_buffer
         The path to the CSV file, or the file object.
-    cat_col 
-        For each value in the cat_col columns, it will add a new Timeserie.
+    cat_cols
+        For each value in the cat_cols columns, it will add a new Timeserie.
     time_col
         The time column name. If set, the column will be cast to a pandas DatetimeIndex.
         If not set, the pandas Int64Index will be used.
@@ -88,4 +100,4 @@ def from_csv(filepath_or_buffer: pd._typing.FilePathOrBuffer,
     """
     # Let's open the CSV as a DataFrame with time_col as a DatetimeIndex
     df = pd.read_csv(filepath_or_buffer=filepath_or_buffer, **kwargs)
-    return from_df(df, cat_col=cat_col, time_col=time_col, value_cols=value_cols)
+    return from_df(df, cat_col=cat_cols, time_col=time_col, value_cols=value_cols)
