@@ -44,7 +44,10 @@ def from_df(df: pd.DataFrame,
         df.drop(time_col, axis=1, inplace=True)
 
     if value_cols==None:
-        value_cols = list(df.drop(cat_cols, axis=1).columns)
+        if cat_cols:
+            value_cols = list(df.drop(cat_cols, axis=1).columns)
+        else:
+            value_cols = list(df.columns)
 
 
     # Let's create the new dataframe creating a column for each value of cat_col
