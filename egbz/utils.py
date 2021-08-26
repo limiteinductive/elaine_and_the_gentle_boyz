@@ -9,7 +9,7 @@ import xarray as xr
 
 def create_dataset(
     df: pd.DataFrame,
-    feat_cols: Union[List[str], str],
+    feat_cols: Optional[Union[List[str], str]]=None,
     zone_col: Optional[str]=None,
     time_col: Optional[str]=None,
     cat_cols: Optional[Union[List[str], str]]=None,
@@ -41,26 +41,36 @@ def create_dataset(
     """
     coords = []
     dims = []
+    rename_dict = {}
     
     if zone_col:
         zone_series = df[zone_col]
         coords.append(zone_series)
-        dims.append('zone')
+        dims.append(zone_col)
+        rename_dict[zone_col] = 'zone'
     
     if time_col:
         df[time_col] = pd.to_datetime(df[time_col])
         coords.append(df[time_col])
-        dims.append('time')
+        dims.append(time_col)
+        rename_dict[time_col] = 'time'
         
     if cat_cols:
         if isinstance(cat_cols, str):
             cat_cols = [cat_cols]
         coords.append(cat_cols)
-        dims.append('cat')
-        
-    index_df = df.set_index(coords)[feat_cols]
+        dims.append(cat_cols)
     
-    return index_df.to_xarray()
+    if not feat_cols:
+        feat_cols = [x for x in df if x not in dims]
+        
+    if isinstance(feat_cols, str):
+        feat_cols = [feat_cols]
+
+    index_df = df.set_index(coords)[feat_cols]
+    xarray = index_df.to_xarray().rename(rename_dict)
+    
+    return xarray
 
 
 
