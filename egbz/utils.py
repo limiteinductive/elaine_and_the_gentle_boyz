@@ -2,6 +2,7 @@ import pandas as pd
 import itertools
 from darts import TimeSeries
 from typing import Tuple, Optional, Callable, Any, List, Union
+import xarray as xr
 
 
 
@@ -36,7 +37,7 @@ def create_dataset(
     Returns
     ----------
     Dataset
-        multi-dimensional Dataset constructed from the df DataFrame
+        Multi-dimensional Dataset constructed from the df DataFrame
     """
     coords = []
     dims = []
