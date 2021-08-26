@@ -43,6 +43,8 @@ def from_df(df: pd.DataFrame,
         df = df.set_index(datetime_index)
         df.drop(time_col, axis=1, inplace=True)
 
+    if value_cols==None:
+        value_cols = list(df.drop(cat_cols, axis=1).columns)
 
 
     # Let's create the new dataframe creating a column for each value of cat_col
