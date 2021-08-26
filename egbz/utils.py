@@ -4,6 +4,65 @@ from darts import TimeSeries
 from typing import Tuple, Optional, Callable, Any, List, Union
 
 
+
+
+def create_dataset(
+    df: pd.DataFrame,
+    feat_cols: Union[List[str], str],
+    zone_col: Optional[str]=None,
+    time_col: Optional[str]=None,
+    cat_cols: Optional[Union[List[str], str]]=None,
+) -> xr.Dataset:
+    """
+    Returns a Dataset that encapsulates the zone, time, categorical
+    and features dimension of the data.
+    
+    Parameters
+    ----------
+    df
+        DataFrame from which the values are extracted.
+    feat_cols
+        Adds 'features' as variables inside the Dataset.
+    zone_col
+        Adds a 'zone' dimension to the DataArray where the values
+        come from the zone_col columns of df.
+    time_col
+        Adds a 'time' dimension to the DataArray where the values
+        come from the time_col columns of df.
+    cat_cols
+        Adds a 'categorical' dimension to the DataArray where the
+        values come from the cat_cols.
+    
+    Returns
+    ----------
+    Dataset
+        multi-dimensional Dataset constructed from the df DataFrame
+    """
+    coords = []
+    dims = []
+    
+    if zone_col:
+        zone_series = df[zone_col]
+        coords.append(zone_series)
+        dims.append('zone')
+    
+    if time_col:
+        df[time_col] = pd.to_datetime(df[time_col])
+        coords.append(df[time_col])
+        dims.append('time')
+        
+    if cat_cols:
+        if isinstance(cat_cols, str):
+            cat_cols = [cat_cols]
+        coords.append(cat_cols)
+        dims.append('cat')
+        
+    index_df = df.set_index(coords)[feat_cols]
+    
+    return index_df.to_xarray()
+
+
+
 def from_df(df: pd.DataFrame,
             time_col: Optional[str] = None,
             cat_cols: Optional[Union[List[str], str]] = None,
