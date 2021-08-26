@@ -50,20 +50,20 @@ def from_df(df: pd.DataFrame,
         value_cols = [value_cols]
     if isinstance(cat_cols, str):
         cat_cols = [cat_cols]
-    
-    for col in cat_cols:
-        df[col] = df[col].astype('str')
+    if cat_cols: 
+        for col in cat_cols:
+            df[col] = df[col].astype('str')
 
-    categories = itertools.product(*[df[cat].unique() for cat in cat_cols])
-    d = {f'{col}_{"_".join([x for x in cat])}': 
-	     df.query(' & '.join([f'{cat_name}=="{cat_value}"'
-		                    for cat_name, cat_value in zip(cat_cols, [x for x in cat])
-		                    ])
-	     )[col]
-	    for cat in categories
-	    for col in value_cols
-    }
-    df = pd.DataFrame(d)
+        categories = itertools.product(*[df[cat].unique() for cat in cat_cols])
+        d = {f'{col}_{"_".join([x for x in cat])}': 
+             df.query(' & '.join([f'{cat_name}=="{cat_value}"'
+                                for cat_name, cat_value in zip(cat_cols, [x for x in cat])
+                                ])
+             )[col]
+            for cat in categories
+            for col in value_cols
+        }
+        df = pd.DataFrame(d)
 
     return TimeSeries.from_dataframe(df=df)
 
