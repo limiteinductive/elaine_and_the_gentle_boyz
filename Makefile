@@ -53,3 +53,10 @@ pypi_test:
 
 pypi:
 	@twine upload dist/* -u $(PYPI_USERNAME)
+
+# ------------------------------------
+#						UPLOAD DATA
+# ------------------------------------
+
+upload_data:
+	@python scripts/upload_data.py
