@@ -60,3 +60,9 @@ pypi:
 
 update_data: #Upload et update les data dans raw_data/Actual et met les anciens dans raw_data/History
 	@python scripts/upload_data.py
+
+process_data:
+	@python scripts/process.py
+
+get_training_data:
+	@python scripts/get_training_data.py

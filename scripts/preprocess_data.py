@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import upload_data
 
 
 correspondance_reg_dp = pd.read_csv(
@@ -26,7 +27,8 @@ def hosp_rea():
     df = pd.read_csv('raw_data/Actual/rea_dc_cumul.csv', sep=';')
     df = df.drop(columns=['HospConv', 'SSR_USLD', 'autres', 'sexe'])
     df.columns = ['dep', 'date', 'hosp', 'rea', 'rad', 'dc']
-    df = make_str_out_of_dep(df)
+
+    df.dep = make_str_out_of_dep(df)
     return df
 
 
@@ -39,6 +41,7 @@ def hosp_rea_1():  #lien mort à revoir
     """
     df = pd.read_csv('raw_data/Actual/rea_dc_journalier.csv', sep=';')
     df.dep = make_str_out_of_dep(df)
+
     return df
 
 
@@ -49,6 +52,7 @@ def hosp_rea_2():
     """
     df = pd.read_csv('raw_data/Actual/service_au_moins_un_cas_cumul.csv', sep=';')
     df.dep = make_str_out_of_dep(df)
+
     return df
 
 
@@ -109,7 +113,6 @@ def incidence_std_dep():
         'dep', 'date', 'population', 'nbre_tests_positifs',
         'taux_incidence_std'
     ]
-
     df.dep = make_str_out_of_dep(df)
     return df
 
@@ -129,6 +132,7 @@ def incidence_std_fr():
     df.columns = [
         'date', 'population', 'nbre_tests_positifs', 'taux_incidence_std'
     ]
+
     return df
 
 
@@ -146,6 +150,7 @@ def vaccination_dep():
         'nbre_cum_complet', 'couverture_dose1', 'couverture_complet'
     ]
     df.dep = make_str_out_of_dep(df)
+
     return df
 
 
