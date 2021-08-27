@@ -55,7 +55,7 @@ def create_dataset(
     if cat_cols:
         if isinstance(cat_cols, str):
             cat_cols = [cat_cols]
-        dims.append(cat_cols)
+        dims.extend(cat_cols)
     
     if not feat_cols:
         feat_cols = [x for x in df if x not in dims]
