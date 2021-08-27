@@ -17,7 +17,7 @@ def create_dataset(
     """
     Returns a Dataset that encapsulates the zone, time, categorical
     and features dimension of the data.
-    
+
     Parameters
     ----------
     df
@@ -33,7 +33,7 @@ def create_dataset(
     cat_cols
         Adds a 'categorical' dimension to the DataArray where the
         values come from the cat_cols.
-    
+
     Returns
     ----------
     Dataset
@@ -41,31 +41,31 @@ def create_dataset(
     """
     dims = []
     rename_dict = {}
-    
+
     if zone_col:
         df[zone_col] = df[zone_col].astype('str')
         dims.append(zone_col)
         rename_dict[zone_col] = 'zone'
-    
+
     if time_col:
         df[time_col] = pd.to_datetime(df[time_col])
         dims.append(time_col)
         rename_dict[time_col] = 'time'
-        
+
     if cat_cols:
         if isinstance(cat_cols, str):
             cat_cols = [cat_cols]
         dims.extend(cat_cols)
-    
+
     if not feat_cols:
         feat_cols = [x for x in df if x not in dims]
-        
+
     if isinstance(feat_cols, str):
         feat_cols = [feat_cols]
 
     index_df = df.set_index(dims)[feat_cols]
     xarray = index_df.to_xarray()
-    
+
     return xarray.rename(rename_dict)
 
 
@@ -77,8 +77,8 @@ def from_df(df: pd.DataFrame,
             ) -> 'Timeseries':
     """
     Returns a multivariate Timeseries instance from a DataFrame. The date_col is the column
-    used to represent time, value_cols the features and cat_col is the column 
-    
+    used to represent time, value_cols the features and cat_col is the column
+
 
     Parameters
     ----------
@@ -90,11 +90,11 @@ def from_df(df: pd.DataFrame,
     cat_cols
         For each value in the cat_cols columns, it will add a new Timeserie.
     value_col
-        A string or a list of strings representing the features to be extracted from 
+        A string or a list of strings representing the features to be extracted from
         the csv. If None, all the columns will be extracted.
     kwargs
         Optional arguments to be passed to 'pandas.read_csv' function.
-        
+
 
     Returns
     -----------
@@ -121,12 +121,12 @@ def from_df(df: pd.DataFrame,
         value_cols = [value_cols]
     if isinstance(cat_cols, str):
         cat_cols = [cat_cols]
-    if cat_cols: 
+    if cat_cols:
         for col in cat_cols:
             df[col] = df[col].astype('str')
 
         categories = itertools.product(*[df[cat].unique() for cat in cat_cols])
-        d = {f'{col}_{"_".join([x for x in cat])}': 
+        d = {f'{col}_{"_".join([x for x in cat])}':
              df.query(' & '.join([f'{cat_name}=="{cat_value}"'
                                 for cat_name, cat_value in zip(cat_cols, [x for x in cat])
                                 ])
@@ -145,8 +145,8 @@ def from_csv(filepath_or_buffer: pd._typing.FilePathOrBuffer,
                             **kwargs) -> 'Timeseries':
     """
     Returns a multivariate Timeseries instance from a CSV. The date_col is the column
-    used to represent time, value_cols the features and cat_col is the column 
-    
+    used to represent time, value_cols the features and cat_col is the column
+
 
     Parameters
     ----------
@@ -158,11 +158,11 @@ def from_csv(filepath_or_buffer: pd._typing.FilePathOrBuffer,
         The time column name. If set, the column will be cast to a pandas DatetimeIndex.
         If not set, the pandas Int64Index will be used.
     value_col
-        A string or a list of strings representing the features to be extracted from 
+        A string or a list of strings representing the features to be extracted from
         the csv. If None, all the columns will be extracted.
     kwargs
         Optional arguments to be passed to 'pandas.read_csv' function.
-        
+
 
     Returns
     -----------
