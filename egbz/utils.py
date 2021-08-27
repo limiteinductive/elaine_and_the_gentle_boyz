@@ -66,7 +66,7 @@ def create_dataset(
     index_df = df.set_index(dims)[feat_cols]
     xarray = index_df.to_xarray()
     
-    return xarray
+    return xarray.rename(rename_dict)
 
 
 
