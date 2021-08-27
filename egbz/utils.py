@@ -39,26 +39,22 @@ def create_dataset(
     Dataset
         Multi-dimensional Dataset constructed from the df DataFrame
     """
-    coords = []
     dims = []
     rename_dict = {}
     
     if zone_col:
-        zone_series = df[zone_col]
-        coords.append(zone_series)
+        df[zone_col] = df[zone_col].astype('str')
         dims.append(zone_col)
         rename_dict[zone_col] = 'zone'
     
     if time_col:
         df[time_col] = pd.to_datetime(df[time_col])
-        coords.append(df[time_col])
         dims.append(time_col)
         rename_dict[time_col] = 'time'
         
     if cat_cols:
         if isinstance(cat_cols, str):
             cat_cols = [cat_cols]
-        coords.append(cat_cols)
         dims.append(cat_cols)
     
     if not feat_cols:
@@ -67,8 +63,8 @@ def create_dataset(
     if isinstance(feat_cols, str):
         feat_cols = [feat_cols]
 
-    index_df = df.set_index(coords)[feat_cols]
-    xarray = index_df.to_xarray().rename(rename_dict)
+    index_df = df.set_index(dims)[feat_cols]
+    xarray = index_df.to_xarray()
     
     return xarray
 
