@@ -3,6 +3,7 @@ from darts.timeseries import TimeSeries as TS
 import numpy as np
 import os
 from datetime import date
+from preprocess_data import *
 """
 ==========================================================================================================================================================
 
@@ -21,24 +22,30 @@ Lien variant = https://www.data.gouv.fr/fr/datasets/donnees-de-laboratoires-pour
 ==========================================================================================================================================================
 """
 
+############################# API ##################################
+
+
+
+
+
 link_hospitals = {
     "rea_dc_cumul":
-    'https://static.data.gouv.fr/resources/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/20210825-190608/donnees-hospitalieres-covid19-2021-08-25-19h06.csv',
+    'https://static.data.gouv.fr/resources/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/20210826-190901/donnees-hospitalieres-covid19-2021-08-26-19h09.csv',
     "rea_dc_journalier":
-    'https://static.data.gouv.fr/resources/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/20210824-200936/donnees-hospitalieres-nouveaux-covid19-2021-08-24-20h09.csv',
+    'https://static.data.gouv.fr/resources/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/20210826-190859/donnees-hospitalieres-nouveaux-covid19-2021-08-26-19h08.csv',
     "service_au_moins_un_cas_cumul":
-    'https://static.data.gouv.fr/resources/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/20210825-190610/donnees-hospitalieres-etablissements-covid19-2021-08-25-19h06.csv'
+    'https://static.data.gouv.fr/resources/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/20210826-190903/donnees-hospitalieres-etablissements-covid19-2021-08-26-19h09.csv'
 }
 
 link_incidence = {
     "quotidien_departement_classe_age":
-    'https://static.data.gouv.fr/resources/taux-dincidence-de-lepidemie-de-covid-19/20210825-190650/sp-pe-tb-quot-dep-2021-08-25-19h06.csv',
+    'https://static.data.gouv.fr/resources/taux-dincidence-de-lepidemie-de-covid-19/20210826-190514/sp-pe-tb-quot-dep-2021-08-26-19h05.csv',
     'quotidien_france':
-    'https://static.data.gouv.fr/resources/taux-dincidence-de-lepidemie-de-covid-19/20210825-190647/sp-pe-tb-quot-fra-2021-08-25-19h06.csv',
+    'https://static.data.gouv.fr/resources/taux-dincidence-de-lepidemie-de-covid-19/20210826-190517/sp-pe-tb-quot-fra-2021-08-26-19h05.csv',
     "incidence_std_quotidien_departement":
-    "https://static.data.gouv.fr/resources/taux-dincidence-de-lepidemie-de-covid-19/20210825-190629/sp-pe-std-quot-dep-2021-08-25-19h06.csv",
+    "https://static.data.gouv.fr/resources/taux-dincidence-de-lepidemie-de-covid-19/20210826-190507/sp-pe-std-quot-dep-2021-08-26-19h05.csv",
     "incidence_std_quotidien_france":
-    "https://static.data.gouv.fr/resources/taux-dincidence-de-lepidemie-de-covid-19/20210825-190627/sp-pe-std-quot-fra-2021-08-25-19h06.csv"
+    "https://static.data.gouv.fr/resources/taux-dincidence-de-lepidemie-de-covid-19/20210826-190509/sp-pe-std-quot-fra-2021-08-26-19h05.csv"
 }
 
 link_vaccination = {
@@ -51,18 +58,23 @@ link_mutant = {
     'https://www.data.gouv.fr/fr/datasets/r/848debc4-0e42-4e3b-a176-afc285ed5401'
 }
 
-links = [link_hospitals, link_incidence]
+links = [link_hospitals, link_incidence] #rajouter les liens manquants !!!!!!!
 
 
 today = date.today().strftime("%d/%m/%Y") #La date d'aujourd'hui
+
 source = 'raw_data/Actual'
 destination = 'raw_data/History'
 
+needs_update = False
+
 if not os.access(source, os.F_OK) or os.listdir(source) == [] or \
     np.array(pd.read_csv(link_incidence['quotidien_france'], sep=';')['jour'])[-1] != \
-    np.array(pd.read_csv('raw_data/Actual/quotidien_france.csv',sep=';')['date'])[-1] :
+    np.array(pd.read_csv('raw_data/Actual/quotidien_france.csv',sep=';')['jour'])[-1] :
 
- #si le dir. Actual est vide, n'existe pas ou n'est pas à jour, on lance le téléchargement des tableaux sinon rien
+    needs_update = True
+
+    #si le dir. Actual est vide, n'existe pas ou n'est pas à jour, on lance le téléchargement des tableaux sinon rien
 
     if not os.access(source,os.F_OK):
         os.mkdir(source)
@@ -82,3 +94,22 @@ if not os.access(source, os.F_OK) or os.listdir(source) == [] or \
             os.system(f"touch raw_data/Actual/{data_name}.csv")
             os.system(
                 f"curl --silent {url} > 'raw_data/Actual/{data_name}.csv' ")
+
+
+processed_dataframe_path = 'data/processed_dataframes'
+
+if not os.access(processed_dataframe_path,os.F_OK):                                            #si le path n'existe pas
+    os.mkdir(processed_dataframe_path)
+
+if needs_update:
+    hosp_rea().to_csv(f'{processed_dataframe_path}/rea_dc_cumul.csv')
+    hosp_rea_1().to_csv(f'{processed_dataframe_path}/rea_dc_journalier.csv')
+    hosp_rea_2().to_csv(f'{processed_dataframe_path}/service_au_moins_un_cas_cumul.csv')
+    incidence().to_csv(
+        f'{processed_dataframe_path}/quotidien_departement_classe_age.csv')
+    incidence_france().to_csv(f'{processed_dataframe_path}/quotidien_france.csv')
+    incidence_std_dep().to_csv(
+        f'{processed_dataframe_path}/incidence_std_quotidien_departement.csv')
+    incidence_std_fr().to_csv(
+        f'{processed_dataframe_path}/incidence_std_quotidien_france.csv')
+    #vaccination_dep().to_csv(f'{processed_dataframe_path}/nbre_vacc_dep.csv')

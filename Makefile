@@ -58,5 +58,5 @@ pypi:
 #						UPLOAD DATA
 # ------------------------------------
 
-upload_data:
+update_data: #Upload et update les data dans raw_data/Actual et met les anciens dans raw_data/History
 	@python scripts/upload_data.py
