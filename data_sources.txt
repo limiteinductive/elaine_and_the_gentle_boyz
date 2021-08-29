@@ -1,11 +1,14 @@
 #################################################################
 
- 		--- DONNÉES POUR LE PROJET EGBZ ---
+ 		--- SOURCES POUR LE PROJET EGBZ ---
 
 #################################################################
 
-# Données météorologiques historiques depuis toujours
-https://public.opendatasoft.com/explore/dataset/donnees-synop-essentielles-omm/table/?flg=fr&sort=date&refine.date=2020
+
+# Données météorologiques 01/01/2020 -> 21/04/2021
+https://www.data.gouv.fr/fr/datasets/donnees-quotidiennes-de-119-stations-en-france-metropolitaine-pour-les-etudes-de-liens-entre-meteorologie-et-covid-19-du-01-01-2020-au-21-04-2021/
+https://www.data.gouv.fr/fr/datasets/regions-departements-villes-et-villages-de-france-et-doutre-mer/
+
 
 # Covid dans le monde depuis 01/01/2020
 https://github.com/owid/covid-19-data/tree/master/public/data
@@ -30,5 +33,5 @@ https://www.data.gouv.fr/fr/datasets/depenses-d-aide-sociale-departementale-pour
 https://www.data.gouv.fr/fr/datasets/mortali-0/
 https://www.data.gouv.fr/fr/datasets/population-par-tranche-d-age-et-sexe-estimations-localisees-de-population/
 
-# Données de Pollution et mobilité 04/2020 -> 08/2021
+# Données de Pollution et mobilité 09/04/2020 -> 12/08/2021
 source: Ludo
