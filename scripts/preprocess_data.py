@@ -27,12 +27,21 @@ def hosp_rea():
     df = pd.read_csv('raw_data/Actual/rea_dc_cumul.csv', sep=';')
     df = df.drop(columns=['HospConv', 'SSR_USLD', 'autres', 'sexe'])
     df.columns = ['dep', 'date', 'hosp', 'rea', 'rad', 'dc']
-
     df.dep = make_str_out_of_dep(df)
-    return df
+    dico = {}
+    for i in set(df['dep'].values):
+        dico[i] = df[df['dep'] == i]
+    for dep in dico.keys():
+        dico[dep] = dico[dep].groupby(by='date').sum()
+        dico[dep]['dep'] = dep
+    lf = pd.DataFrame()
+    for dep in dico.keys():
+        lf = pd.concat([lf, dico[dep]])
+
+    return lf.reset_index()
 
 
-def hosp_rea_1():  #lien mort à revoir
+def hosp_rea_1():
     """Returns the dataframe with the columns:
     - department
     - incid_rea : Nombre quotidien de personnes nouvellement hospitalisées
@@ -50,10 +59,20 @@ def hosp_rea_2():
     - department
     - nb: nombre cumulé de services hospitaliers ayant eu au mois un cas
     """
-    df = pd.read_csv('raw_data/Actual/service_au_moins_un_cas_cumul.csv', sep=';')
+    df = pd.read_csv('raw_data/Actual/service_au_moins_un_cas_cumul.csv',
+                     sep=';')
     df.dep = make_str_out_of_dep(df)
+    dico = {}
+    for i in set(df['dep'].values):
+        dico[i] = df[df['dep'] == i]
+    for dep in dico.keys():
+        dico[dep] = dico[dep].groupby(by='jour').sum()
+        dico[dep]['dep'] = dep
+    lf = pd.DataFrame()
+    for dep in dico.keys():
+        lf = pd.concat([lf, dico[dep]])
 
-    return df
+    return lf.reset_index()
 
 
 def incidence():
@@ -91,7 +110,7 @@ def incidence_france():
         'tests_positifs_tot', 'pop_femme', 'pop_homme', 'classe_age',
         'population'
     ]
-
+    df['zone'] = 'fr'
     return df
 
 
@@ -128,10 +147,10 @@ def incidence_std_fr():
     - taux incidence standardisé
     """
     df = pd.read_csv('raw_data/Actual/incidence_std_quotidien_france.csv', sep=';')
-    df = df.drop(columns=['fra'])
     df.columns = [
-        'date', 'population', 'nbre_tests_positifs', 'taux_incidence_std'
+        'zone','date', 'population', 'nbre_tests_positifs', 'taux_incidence_std'
     ]
+    df['zone'] = df['zone'].map(lambda col : col.lower())
 
     return df
 
@@ -146,8 +165,8 @@ def vaccination_dep():
     """
     df = pd.read_csv('raw_data/Actual/nbre_vacc_dep.csv', sep=';')
     df.columns = [
-        'dep', 'date', 'nbre_dose_1', 'nbre_complet', 'nbre_cum_dose_1',
-        'nbre_cum_complet', 'couverture_dose1', 'couverture_complet'
+        'dep', 'date', 'nbre_dose_1', 'nbre_dose_complet', 'nbre_cum_dose_1',
+        'nbre_cum_complet', 'couverture_dose1', 'couverture_complete'
     ]
     df.dep = make_str_out_of_dep(df)
 
@@ -155,4 +174,10 @@ def vaccination_dep():
 
 
 def presence_mutant():
-    pass
+    df = pd.read_csv('raw_data/Actual/presence_mutant.csv',sep = ';')
+    df['fra'] = df['fra'].map(lambda col: col.lower())
+    df = df.drop(columns = ['nb_crib'])
+    df['semaine'] = df['semaine'].map(lambda col: col[:10])
+    df.columns = ['zone','date','nbre_positif','taux_crib','nbre_A0','nbre_A1','taux_A1',
+                  'nbre_B0','nbre_B1','taux_B1','nbre_C0','nbre_C1','taux_C1']
+    return df

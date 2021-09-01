@@ -66,3 +66,9 @@ process_data:
 
 get_training_data:
 	@python scripts/get_training_data.py
+
+make_dataset:
+	@python scripts/make_dataset.py
+
+make_tensor:
+	@python scripts/make_tensor.py

@@ -40,6 +40,7 @@ def create_dataset(
         Multi-dimensional Dataset constructed from the df DataFrame
     """
     dims = []
+    coords = []
     rename_dict = {}
 
     if zone_col:
